@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "AccessToken": {
+    "dataSource": "db",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "AppUser": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Alarm": {
+    "dataSource": "db",
+    "public": true
+  },
+  "VoiceNote": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Friendship": {
+    "dataSource": "db",
+    "public": true
+  }
+}

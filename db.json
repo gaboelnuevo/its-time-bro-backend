@@ -1,0 +1,34 @@
+{
+  "ids": {
+    "AccessToken": 3,
+    "ACL": 1,
+    "RoleMapping": 1,
+    "Role": 1,
+    "AppUser": 3,
+    "Alarm": 1,
+    "AppUserAlarm": 1,
+    "VoiceNote": 1,
+    "AlarmVoiceNote": 1,
+    "Friendship": 2
+  },
+  "models": {
+    "AccessToken": {
+      "ZGCCPnh7odu6FZOEGJkQz5EwhzQzliedtJ0iO6yu61KxlXCGNE2S6kPTql8zoFDA": "{\"id\":\"ZGCCPnh7odu6FZOEGJkQz5EwhzQzliedtJ0iO6yu61KxlXCGNE2S6kPTql8zoFDA\",\"ttl\":1209600,\"created\":\"2017-02-14T23:47:38.284Z\",\"userId\":2}",
+      "o6CWViljwnkUXjv8pBjYwi1AKnrDaqVkAgHg4U2sbnnZKvOPEefl7QJ2GReuM6mw": "{\"id\":\"o6CWViljwnkUXjv8pBjYwi1AKnrDaqVkAgHg4U2sbnnZKvOPEefl7QJ2GReuM6mw\",\"ttl\":1209600,\"created\":\"2017-02-15T00:08:58.101Z\",\"userId\":2}"
+    },
+    "ACL": {},
+    "RoleMapping": {},
+    "Role": {},
+    "AppUser": {
+      "1": "{\"username\":\"kimy\",\"password\":\"$2a$10$Ncnq2vJLursmEiGbpDmOFOFu/3PkfTQXi9LGv/8xNroRMWe/2itOC\",\"email\":\"kimy.gl@gmail.com\",\"emailVerified\":false,\"id\":1}",
+      "2": "{\"username\":\"gaboelnuevo\",\"password\":\"$2a$10$yCepOdlW.nbC28p4L0QzMu4/M43QrKISLS3a7uXAWGYJCKiHp5yOS\",\"email\":\"gaboelnuevo@gmail.com\",\"emailVerified\":false,\"id\":2}"
+    },
+    "Alarm": {},
+    "AppUserAlarm": {},
+    "VoiceNote": {},
+    "AlarmVoiceNote": {},
+    "Friendship": {
+      "1": "{\"friendId\":1,\"userId\":2,\"id\":1}"
+    }
+  }
+}

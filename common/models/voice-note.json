@@ -1,0 +1,33 @@
+{
+  "name": "VoiceNote",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "meta": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "alarm": {
+      "type": "belongsTo",
+      "model": "Alarm",
+      "foreignKey": "alarmId"
+    },
+    "sender": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "senderId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

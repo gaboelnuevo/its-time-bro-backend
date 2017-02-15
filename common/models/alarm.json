@@ -1,0 +1,43 @@
+{
+  "name": "Alarm",
+  "plural": "alarms",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "textMessage": {
+      "type": "string"
+    },
+    "bedtime": {
+      "type": "date",
+      "required": true
+    },
+    "waketime": {
+      "type": "date",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
+    },
+    "voiceNotes": {
+      "type": "hasAndBelongsToMany",
+      "model": "VoiceNote",
+      "foreignKey": "alarmId",
+      "options": {
+        "disableInclude": true
+      }
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
