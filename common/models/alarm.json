@@ -25,7 +25,7 @@
     "updatedAt": {
       "type": "date",
       "default": "$now"
-    },
+    }
   },
   "validations": [],
   "relations": {
