@@ -273,7 +273,7 @@ module.exports = function(AppUser) {
       },
       http: {
         path: '/:id/list-friends',
-        verb: 'post',
+        verb: 'get',
       },
     }
   );
@@ -311,7 +311,7 @@ module.exports = function(AppUser) {
       },
       http: {
         path: '/:id/block',
-        verb: 'get',
+        verb: 'post',
       },
     }
   );
@@ -330,7 +330,7 @@ module.exports = function(AppUser) {
       },
       http: {
         path: '/:id/unblock',
-        verb: 'get',
+        verb: 'post',
       },
     }
   );
