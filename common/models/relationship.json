@@ -1,0 +1,50 @@
+{
+  "name": "Relationship",
+  "plural": "relationships",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "updatedAt": {
+      "type": "date",
+      "default": "$now"
+    },
+    "status": {
+      "type": "string",
+      "default": "pending"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "firstUser": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "firstUserId"
+    },
+    "secondUser": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "secondUserId"
+    },
+    "actionUser": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "actionUserId"
+    }
+  },
+  "indexes": {
+    "relation_index": {
+      "keys": {
+         "firstUserId": 1,
+         "secondUserId": 1
+       },
+       "options": {
+         "unique": true
+       }
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
