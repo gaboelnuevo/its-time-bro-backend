@@ -18,23 +18,13 @@
       "type": "belongsTo",
       "model": "Alarm",
       "foreignKey": "currentAlarmId"
-    },
-    "friends": {
-      "type": "hasMany",
-      "model": "AppUser",
-      "foreignKey": "userId",
-      "through": "Friendship",
-      "keyThrough": "friendId",
-      "options": {
-        "disableInclude": true
-      }
     }
   },
   "acls": [
     {
       "principalType": "ROLE",
       "principalId": "$everyone",
-      "permission": "ALLOW"
+      "permission": "DENY"
     },
     {
       "principalType": "ROLE",
@@ -84,6 +74,36 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "resetPassword"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "addFriend"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "unfriend"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "block"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "unblock"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "listFriends"
     }
   ],
   "methods": {}

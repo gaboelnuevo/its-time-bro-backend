@@ -1,6 +1,6 @@
 {
   "ids": {
-    "AccessToken": 3,
+    "AccessToken": 4,
     "ACL": 1,
     "RoleMapping": 1,
     "Role": 1,
@@ -9,12 +9,14 @@
     "AppUserAlarm": 1,
     "VoiceNote": 1,
     "AlarmVoiceNote": 1,
-    "Friendship": 2
+    "Friendship": 2,
+    "Relationship": 6
   },
   "models": {
     "AccessToken": {
       "ZGCCPnh7odu6FZOEGJkQz5EwhzQzliedtJ0iO6yu61KxlXCGNE2S6kPTql8zoFDA": "{\"id\":\"ZGCCPnh7odu6FZOEGJkQz5EwhzQzliedtJ0iO6yu61KxlXCGNE2S6kPTql8zoFDA\",\"ttl\":1209600,\"created\":\"2017-02-14T23:47:38.284Z\",\"userId\":2}",
-      "o6CWViljwnkUXjv8pBjYwi1AKnrDaqVkAgHg4U2sbnnZKvOPEefl7QJ2GReuM6mw": "{\"id\":\"o6CWViljwnkUXjv8pBjYwi1AKnrDaqVkAgHg4U2sbnnZKvOPEefl7QJ2GReuM6mw\",\"ttl\":1209600,\"created\":\"2017-02-15T00:08:58.101Z\",\"userId\":2}"
+      "o6CWViljwnkUXjv8pBjYwi1AKnrDaqVkAgHg4U2sbnnZKvOPEefl7QJ2GReuM6mw": "{\"id\":\"o6CWViljwnkUXjv8pBjYwi1AKnrDaqVkAgHg4U2sbnnZKvOPEefl7QJ2GReuM6mw\",\"ttl\":1209600,\"created\":\"2017-02-15T00:08:58.101Z\",\"userId\":2}",
+      "IQhrmBB6zFT8jiDmflu7ykNI514irKaCK2o3r4sBndGSz4OKTkGY1mGmn0rTFeoX": "{\"id\":\"IQhrmBB6zFT8jiDmflu7ykNI514irKaCK2o3r4sBndGSz4OKTkGY1mGmn0rTFeoX\",\"ttl\":1209600,\"created\":\"2017-02-16T01:24:17.384Z\",\"userId\":1}"
     },
     "ACL": {},
     "RoleMapping": {},
@@ -27,8 +29,12 @@
     "AppUserAlarm": {},
     "VoiceNote": {},
     "AlarmVoiceNote": {},
-    "Friendship": {
-      "1": "{\"friendId\":1,\"userId\":2,\"id\":1}"
+    "Relationship": {
+      "1": "{\"updatedAt\":\"2017-02-16T01:35:30.921Z\",\"status\":\"accepted\",\"firstUserId\":1,\"secondUserId\":2,\"actionUserId\":1,\"id\":1}",
+      "2": "{\"updatedAt\":\"2017-02-16T03:24:20.288Z\",\"status\":\"accepted\",\"firstUserId\":1,\"secondUserId\":1,\"actionUserId\":1,\"id\":2}",
+      "3": "{\"updatedAt\":\"2017-02-16T03:25:14.797Z\",\"status\":\"accepted\",\"firstUserId\":2,\"secondUserId\":2,\"actionUserId\":2,\"id\":3}",
+      "4": "{\"updatedAt\":\"2017-02-16T03:27:17.574Z\",\"status\":\"pending\",\"firstUserId\":1,\"secondUserId\":2,\"actionUserId\":1,\"id\":4}",
+      "5": "{\"updatedAt\":\"2017-02-16T03:28:03.826Z\",\"status\":\"pending\",\"firstUserId\":1,\"secondUserId\":2,\"actionUserId\":1,\"id\":5}"
     }
   }
 }

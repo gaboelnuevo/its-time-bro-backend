@@ -41,7 +41,7 @@
     "dataSource": "db",
     "public": false
   },
-  "Friendship": {
+  "Relationship": {
     "dataSource": "db",
     "public": true
   }
