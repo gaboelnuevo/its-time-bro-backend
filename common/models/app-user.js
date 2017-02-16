@@ -14,11 +14,7 @@ module.exports = function(AppUser) {
         firstUserId: Math.min(firstUserId, secondUserId),
         secondUserId: Math.max(firstUserId, secondUserId),
       },
-    },
-      function(err, result) {
-        cb(err, result);
-      }
-    );
+    }, cb);
   };
 
   var addFriend = function(RelationshipModel, currentUserId, friendId, cb) {
@@ -98,7 +94,7 @@ module.exports = function(AppUser) {
 
   var mapRelationshipDataIds = function(data, excludedId) {
     return data.map(function(x) {
-      return (x.secondUserId === excludedId  ? x.firstUserId : x.secondUserId);
+      return (x.secondUserId === excludedId ? x.firstUserId : x.secondUserId);
     });
   };
 
@@ -156,10 +152,12 @@ module.exports = function(AppUser) {
       where: {
         and: [
           {
-            or: [
-              {firstUserId: id},
-              {secondUserId: id},
-            ],
+            or: [{
+              firstUserId: id,
+            },
+            {
+              secondUserId: id,
+            }],
           },
           {
             status: 'accepted',
@@ -174,7 +172,9 @@ module.exports = function(AppUser) {
       if (err) cb(err);
       AppUser.find({
         where: {
-          id: {inq: data ? mapRelationshipDataIds(data, id) : []},
+          id: {
+            inq: data ? mapRelationshipDataIds(data, id) : [],
+          },
         },
       }, cb);
     });
