@@ -106,7 +106,7 @@ module.exports = function(AppUser) {
     var RelationshipModel = app.models.Relationship;
     var ctx = LoopBackContext.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
+    if (currentUser && currentUser.id !== id) {
       addFriend(RelationshipModel, currentUser.id, id, cb);
     } else {
       cb(null, false);
