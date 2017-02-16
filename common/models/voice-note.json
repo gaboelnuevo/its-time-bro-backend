@@ -13,6 +13,14 @@
     "meta": {
       "type": "object",
       "required": true
+    },
+    "createdAt": {
+      "type": "date",
+      "default": "$now"
+    },
+    "updatedAt": {
+      "type": "date",
+      "default": "$now"
     }
   },
   "validations": [],
