@@ -2,7 +2,71 @@
 var app = require('../../server/server');
 var LoopBackContext = require('loopback-context');
 
+// Add more reserver words from this list: http://blog.postbit.com/reserved-username-list.html
+
+var reservedWords = [
+  'user',
+  'username',
+  'admin',
+  'master',
+  'http',
+  'https',
+  'www',
+  'db',
+  'database',
+  'ftp',
+  's3',
+  'api',
+  'email',
+  'about',
+  'contact',
+  'adds',
+  'login',
+  'logout',
+  'home',
+  'register',
+  'example',
+  'download',
+  'downloads',
+  'me',
+  'you',
+  'yourname',
+  'yourusername',
+  'yoursite',
+  'yourdomain',
+  'myusername',
+  'bot',
+  'pay',
+  'sale',
+  'shop',
+  'premium',
+  'games',
+  'imbox',
+  'notifications',
+  'add',
+  'follow',
+  'voicenotes',
+  'users',
+  'list',
+  'id',
+  'test',
+  'dev',
+  'etc',
+  'system',
+  'chat',
+  'video',
+  'block',
+  'unblock',
+  'default',
+  'wakeup',
+  'alarm',
+  'alarms',
+];
+
 module.exports = function(AppUser) {
+  AppUser.validatesExclusionOf('username', {in: ['itstimebro']});
+  AppUser.validatesExclusionOf('username', {in: reservedWords});
+
   var getRelationshipBetween = function(
     RelationshipModel,
     firstUserId,

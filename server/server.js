@@ -62,6 +62,8 @@ app.use(function setCurrentUser(req, res, next) {
 boot(app, __dirname, function(err) {
   if (err) throw err;
 
+  require('./push-application')(app);
+
   // start the server if `$ node server.js`
   if (require.main === module) {
     app.transloadit = new TransloaditClient(transloaditKeys);

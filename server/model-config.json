@@ -47,22 +47,22 @@
   },
   "UserInstallation": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "PushNotification": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "push": {
     "dataSource": "push",
-    "public": true
+    "public": false
   },
   "application": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "UserNotification": {
     "dataSource": "db",
-    "public": true
+    "public": false
   }
 }

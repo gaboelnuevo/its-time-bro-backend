@@ -1,6 +1,7 @@
 {
   "name": "application",
   "plural": "applications",
+  "forceId": "false",
   "base": "Application",
   "properties": {},
   "validations": [],
