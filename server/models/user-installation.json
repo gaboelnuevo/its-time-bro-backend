@@ -1,0 +1,10 @@
+{
+  "name": "UserInstallation",
+  "plural": "Installations",
+  "base": "Installation",
+  "properties": {},
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

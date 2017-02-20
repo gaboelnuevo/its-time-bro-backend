@@ -1,0 +1,16 @@
+{
+  "name": "PushNotification",
+  "plural": "push-notifications",
+  "base": "Notification",
+  "properties": {},
+  "validations": [],
+  "relations": {
+    "userNotification": {
+      "type": "belongsTo",
+      "model": "UserNotification",
+      "foreignKey": "notificationId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

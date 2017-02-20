@@ -1,0 +1,29 @@
+{
+  "name": "UserNotification",
+  "plural": "notifications",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "payload": {
+      "type": "object",
+      "required": true
+    },
+    "seen":  {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

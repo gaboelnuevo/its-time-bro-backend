@@ -39,9 +39,29 @@
   },
   "VoiceNote": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "Relationship": {
+    "dataSource": "db",
+    "public": false
+  },
+  "UserInstallation": {
+    "dataSource": "db",
+    "public": true
+  },
+  "PushNotification": {
+    "dataSource": "db",
+    "public": true
+  },
+  "push": {
+    "dataSource": "push",
+    "public": true
+  },
+  "application": {
+    "dataSource": "db",
+    "public": true
+  },
+  "UserNotification": {
     "dataSource": "db",
     "public": true
   }

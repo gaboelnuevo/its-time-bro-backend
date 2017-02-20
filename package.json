@@ -16,7 +16,8 @@
     "loopback-component-explorer": "^4.0.0",
     "loopback-context": "^3.0.0",
     "serve-favicon": "^2.0.1",
-    "strong-error-handler": "^1.0.1"
+    "strong-error-handler": "^1.0.1",
+    "transloadit": "1.9.1"
   },
   "devDependencies": {
     "eslint": "^2.13.1",

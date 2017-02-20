@@ -7,6 +7,21 @@ var app = module.exports = loopback();
 
 var LoopBackContext = require('loopback-context');
 
+var transloaditKeys = {
+  authKey: process.env.TRANSLOADIT_AUTH_KEY,
+  authSecret: process.env.TRANSLOADIT_AUTH_SECRET,
+};
+
+transloaditKeys = {
+  authKey: 'a43f5580ed6611e6b218693391151cc9',
+  authSecret: 'd980db552905e19cf9bcb3177a67dbf8c9ed2b45',
+};
+
+var templateId = process.env.TRANSLOADIT_VOICENOTES_TEMPLATE_ID;
+templateId = 'd3de6780f48311e684cb616f38f5e4bd';
+
+var TransloaditClient = require('transloadit');
+
 app.start = function() {
   // start the web server
   return app.listen(function() {
@@ -48,6 +63,8 @@ boot(app, __dirname, function(err) {
   if (err) throw err;
 
   // start the server if `$ node server.js`
-  if (require.main === module)
+  if (require.main === module) {
+    app.transloadit = new TransloaditClient(transloaditKeys);
     app.start();
+  }
 });

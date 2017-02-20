@@ -3,5 +3,12 @@
     "name": "db",
     "connector": "memory",
     "file": "db.json"
+  },
+  "push": {
+    "name": "push",
+    "connector": "loopback-component-push",
+    "notification": "PushNotification",
+    "installation": "UserInstallation",
+    "application": "application"
   }
 }

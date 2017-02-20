@@ -3,6 +3,17 @@
   "plural": "relationships",
   "base": "PersistedModel",
   "idInjection": true,
+  "indexes": {
+    "relation_index": {
+      "keys": {
+        "firstUserId": 1,
+        "secondUserId": 1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "options": {
     "validateUpsert": true
   },
@@ -32,17 +43,6 @@
       "type": "belongsTo",
       "model": "AppUser",
       "foreignKey": "actionUserId"
-    }
-  },
-  "indexes": {
-    "relation_index": {
-      "keys": {
-         "firstUserId": 1,
-         "secondUserId": 1
-       },
-       "options": {
-         "unique": true
-       }
     }
   },
   "acls": [],

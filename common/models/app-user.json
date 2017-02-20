@@ -18,6 +18,11 @@
       "type": "belongsTo",
       "model": "Alarm",
       "foreignKey": "currentAlarmId"
+    },
+    "notifications": {
+      "type": "hasAndBelongsToMany",
+      "model": "UserNotification",
+      "foreignKey": "userId"
     }
   },
   "acls": [
