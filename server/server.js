@@ -7,6 +7,9 @@ var app = module.exports = loopback();
 
 var LoopBackContext = require('loopback-context');
 
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+
 var transloaditKeys = {
   authKey: process.env.TRANSLOADIT_AUTH_KEY,
   authSecret: process.env.TRANSLOADIT_AUTH_SECRET,
@@ -22,13 +25,26 @@ templateId = 'd3de6780f48311e684cb616f38f5e4bd';
 
 var TransloaditClient = require('transloadit');
 
+app.middleware('session:before', cookieParser(app.get('cookieSecret')));
+app.middleware('session', session({
+  secret: 'kitty',
+  saveUninitialized: true,
+  resave: true,
+}));
+
 // Passport configurators..
 var loopbackPassport = require('loopback-component-passport');
 var PassportConfigurator = loopbackPassport.PassportConfigurator;
 var passportConfigurator = new PassportConfigurator(app);
 
-// var flash = require('express-flash');
-// app.use(flash());
+var flash = require('express-flash');
+app.use(flash());
+
+app.get('/auth/error', function(req, res) {
+  var flash = req.flash('error').length >= 1 && req.flash('error')[0];
+  var error = flash || 'unknow error';
+  res.status(403).json({success: false, error: error});
+});
 
 // attempt to build the providers/passport config
 var facebookKeys = {

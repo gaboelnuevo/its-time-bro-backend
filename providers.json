@@ -6,7 +6,7 @@
       "verified", "email", "updated_time"],
     "clientID": "{facebook-client-id-1}",
     "clientSecret": "{facebook-client-secret-1}",
-    "callbackURL": "/auth/facebook/callback",
+    "callbackURL": "itstimebro://itstimebro.com/auth/facebook/callback",
     "authPath": "/auth/facebook",
     "callbackPath": "/auth/facebook/callback",
     "failureRedirect": "/login",
@@ -19,13 +19,14 @@
     "module": "passport-facebook",
     "clientID": "{facebook-client-id-2}",
     "clientSecret": "{facebook-client-secret-2}",
-    "callbackURL": "/link/facebook/callback",
+    "callbackURL": "itstimebro://itstimebro.com/link/facebook/callback",
     "authPath": "/link/facebook",
     "callbackPath": "/link/facebook/callback",
     "successRedirect": "/auth/account",
-    "failureRedirect": "/login",
-    "scope": ["email", "user_likes"],
+    "failureRedirect": "/auth/error",
+    "scope": ["email"],
     "link": true,
-    "failureFlash": true
+    "failureFlash": true,
+    "json" : true
   }
 }
