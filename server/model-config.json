@@ -33,6 +33,14 @@
     "dataSource": "db",
     "public": true
   },
+  "AppUserIdentity": {
+    "dataSource": "db",
+    "public": true
+  },
+  "AppUserCredential": {
+    "dataSource": "db",
+    "public": true
+  },
   "Alarm": {
     "dataSource": "db",
     "public": true

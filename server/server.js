@@ -22,6 +22,32 @@ templateId = 'd3de6780f48311e684cb616f38f5e4bd';
 
 var TransloaditClient = require('transloadit');
 
+// Passport configurators..
+var loopbackPassport = require('loopback-component-passport');
+var PassportConfigurator = loopbackPassport.PassportConfigurator;
+var passportConfigurator = new PassportConfigurator(app);
+
+// var flash = require('express-flash');
+// app.use(flash());
+
+// attempt to build the providers/passport config
+var facebookKeys = {
+  clientID: process.env.FACEBOOCK_CLIENT_ID,
+  clientSecret: process.env.FACEBOOCK_CLIENT_SECRET,
+};
+
+facebookKeys.clientID =  '1805815626347157';
+facebookKeys.clientSecret = '';
+
+var providersConfig = {};
+
+try {
+  providersConfig = require('../providers.json');
+} catch (err) {
+  console.trace(err);
+  process.exit(1); // fatal
+}
+
 app.start = function() {
   // start the web server
   return app.listen(function() {
@@ -63,6 +89,28 @@ boot(app, __dirname, function(err) {
   if (err) throw err;
 
   require('./push-application')(app);
+
+  passportConfigurator.init();
+
+  passportConfigurator.setupModels({
+    userModel: app.models.AppUser,
+    userIdentityModel: app.models.AppUserIdentity,
+    userCredentialModel: app.models.AppUserCredential,
+  });
+
+  for (var s in providersConfig) {
+    var c = providersConfig[s];
+    switch (c.provider) {
+      case 'facebook':
+        c.clientID = facebookKeys.clientID;
+        c.clientSecret = facebookKeys.clientSecret;
+        break;
+      default:
+        break;
+    }
+    c.session = c.json ? false : c.session !== false;
+    passportConfigurator.configureProvider(s, c);
+  }
 
   // start the server if `$ node server.js`
   if (require.main === module) {
