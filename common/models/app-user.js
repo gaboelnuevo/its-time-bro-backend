@@ -210,7 +210,7 @@ module.exports = function(AppUser) {
     }
   };
 
-  AppUser.listFriends = function(id, cb) {
+  AppUser.listFriendsIds = function(id, cb) {
     var RelationshipModel = app.models.Relationship;
     RelationshipModel.find({
       where: {
@@ -234,10 +234,17 @@ module.exports = function(AppUser) {
       },
     }, function(err, data) {
       if (err) cb(err);
+      cb(null, mapRelationshipDataIds(data, id));
+    });
+  };
+
+  AppUser.listFriends = function(id, cb) {
+    AppUser.listFriendsIds(id, function(err, friendsIds) {
+      if (err) cb(err);
       AppUser.find({
         where: {
           id: {
-            inq: data ? mapRelationshipDataIds(data, id) : [],
+            inq: friendsIds || [],
           },
         },
       }, cb);

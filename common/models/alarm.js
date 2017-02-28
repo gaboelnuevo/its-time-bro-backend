@@ -14,6 +14,32 @@ module.exports = function(Alarm) {
     next();
   });
 
+  Alarm.friendsAlarms  = function(cb) {
+    var UserModel = app.models.AppUser;
+    var ctx = LoopBackContext.getCurrentContext();
+    var currentUser = ctx && ctx.get('currentUser');
+    var userId = currentUser ? currentUser.id : null;
+    var threeHoursAgo = new Date((new Date()).valueOf() - 1000 * 60 * 60 * 3);
+    if (userId) {
+      UserModel.listFriendsIds(userId, function(err, friendsIds) {
+        if (err) cb(err);
+        Alarm.find({
+          where: {
+            status: 'active',
+            waketime: {gte: threeHoursAgo},
+            userId: {
+              inq: friendsIds || [],
+            },
+          },
+          include: ['user'],
+          order: 'waketime ASC',
+        }, cb);
+      });
+    } else {
+      cb(null, []);
+    }
+  };
+
   Alarm.calcSignature = function(id, cb) {
     var params = {
       'template_id': VOICENOTE_TEMPLATE_ID,
@@ -37,6 +63,20 @@ module.exports = function(Alarm) {
       });
     });
   };
+
+  Alarm.remoteMethod(
+    'friendsAlarms', {
+      returns: {
+        arg: 'alarms',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/friends-alarms',
+        verb: 'get',
+      },
+    }
+  );
 
   Alarm.remoteMethod(
     'calcSignature', {

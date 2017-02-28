@@ -25,6 +25,10 @@
     "updatedAt": {
       "type": "date",
       "default": "$now"
+    },
+    "status": {
+      "type": "string",
+      "default": "active"
     }
   },
   "validations": [],
@@ -32,10 +36,7 @@
     "user": {
       "type": "belongsTo",
       "model": "AppUser",
-      "foreignKey": "userId",
-      "options": {
-        "disableInclude": true
-      }
+      "foreignKey": "userId"
     },
     "voiceNotes": {
       "type": "hasAndBelongsToMany",
