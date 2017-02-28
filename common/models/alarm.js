@@ -51,6 +51,8 @@ module.exports = function(Alarm) {
   };
 
   Alarm.sendVoiceNote = function(data, cb) {
+    // Warning!
+    // Pending: check relationship status
     var VoiceNoteModel = app.models.VoiceNote;
     app.transloadit.getAssembly(data.assemblyId, function(err, assembly) {
       if (err) cb(err);
