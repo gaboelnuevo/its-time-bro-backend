@@ -109,6 +109,12 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "listFriends"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "avatar"
     }
   ],
   "methods": {}

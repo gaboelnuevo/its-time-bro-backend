@@ -63,6 +63,18 @@ var reservedWords = [
   'alarms',
 ];
 
+var md5 = require('blueimp-md5');
+
+var GRAVATAR_URI = 'https://www.gravatar.com/avatar/';
+
+var _ = require('lodash');
+
+var avatarSizes = {
+  small: 100,
+  medium: 300,
+  large: 480,
+};
+
 module.exports = function(AppUser) {
   AppUser.validatesExclusionOf('username', {in: ['itstimebro']});
   AppUser.validatesExclusionOf('username', {in: reservedWords});
@@ -159,6 +171,54 @@ module.exports = function(AppUser) {
   var mapRelationshipDataIds = function(data, excludedId) {
     return data.map(function(x) {
       return (x.secondUserId === excludedId ? x.firstUserId : x.secondUserId);
+    });
+  };
+
+  var buildGravatarSizesMap = function(hash) {
+    var result = {};
+    for (var key in avatarSizes) {
+      result[key] = GRAVATAR_URI + hash + '?s=' + avatarSizes[key];
+    }
+    return result;
+  };
+
+  AppUser.avatar = function(id, req, res, cb) {
+    var redirect =  !(req.query.json || false);
+    var avatarSize = req.query.size || req.query.s || 'small';
+
+    if (avatarSize === 's') {
+      avatarSize = 'small';
+    }
+    if (avatarSize === 'm') {
+      avatarSize = 'medium';
+    }
+    if (avatarSize === 'l') {
+      avatarSize = 'large';
+    }
+
+    AppUser.findOne({where: {id: id}}, function(err, user) {
+      if (err) cb(err);
+      if (!user) {
+        err = new Error(
+          'No instance with id ' + id + ' found for ' + AppUser.modelName
+        );
+        err.statusCode = 404;
+        return cb(err);
+      }
+
+      var avatarSizesMap = (
+        user.avatar || buildGravatarSizesMap(md5(user.email))
+      );
+
+      var avatarData = {
+        url: avatarSizesMap[avatarSize] || avatarSizesMap['small'],
+      };
+
+      if (redirect) {
+        res.redirect(avatarData.url);
+      } else {
+        cb(null, avatarData);
+      }
     });
   };
 
@@ -291,6 +351,25 @@ module.exports = function(AppUser) {
       cb(null, false);
     }
   };
+
+  AppUser.remoteMethod(
+    'avatar', {
+      accepts: [
+        {arg: 'id', type: 'number'},
+        {arg: 'req', type: 'object', http: {source: 'req'}},
+        {arg: 'res', type: 'object', http: {source: 'res'}},
+      ],
+      returns: {
+        arg: 'data',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/:id/avatar',
+        verb: 'get',
+      },
+    }
+  );
 
   AppUser.remoteMethod(
     'addFriend', {
