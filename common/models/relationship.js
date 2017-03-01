@@ -10,7 +10,7 @@ module.exports = function(Relationship) {
   );
 
   function relationshipValidator(err) {
-    if (this.secondUserId > this.firstUserId) {
+    if (this.secondUserId >= this.firstUserId) {
       err();
     }
   }
