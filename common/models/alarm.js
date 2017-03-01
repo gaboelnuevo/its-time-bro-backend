@@ -7,10 +7,40 @@ var VOICENOTE_TEMPLATE_ID = process.env.TRANSLOADIT_VOICENOTE_TEMPLATE_ID;
 VOICENOTE_TEMPLATE_ID = 'd3de6780f48311e684cb616f38f5e4bd';
 
 module.exports = function(Alarm) {
+  Alarm.validate('waketime', wakeTimeValidator, {message: 'Invalid waketime'});
+  Alarm.validate('bedtime', bedTimeValidator, {message: 'Invalid bedtime'});
+
+  function wakeTimeValidator(err) {
+    var rangeHours = 24;
+    var now = new Date();
+    var timeDiff = this.waketime.getTime() - now.getTime();
+    if (now.getTime() > this.waketime.getTime()) {
+      err();
+    }
+    if ((timeDiff / (1000 * 60 * 60)) > rangeHours) {
+      err();
+    }
+    if (this.bedtime && this.bedtime.getTime() > this.waketime.getTime()) {
+      err();
+    }
+  }
+
+  function bedTimeValidator(err) {
+    var rangeMinutes = 5;
+    if (this.bedtime) {
+      var now = new Date();
+      var timeDiff = this.bedtime.getTime() - now.getTime();
+      if (timeDiff < 0 && Math.abs(timeDiff / (1000 * 60)) > rangeMinutes) {
+        err();
+      }
+    }
+  }
+
   Alarm.beforeRemote('create', function(ctx, modelInstance, next) {
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
+    var currentContext = LoopBackContext.getCurrentContext();
+    var currentUser = currentContext && currentContext.get('currentUser');
     ctx.args.data.userId = currentUser ? currentUser.id : null;
+    ctx.args.data.status = 'active';
     next();
   });
 
