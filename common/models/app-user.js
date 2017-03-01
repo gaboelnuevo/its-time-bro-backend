@@ -296,6 +296,50 @@ module.exports = function(AppUser) {
     });
   };
 
+  AppUser.listFriendsRequests = function(cb) {
+    var RelationshipModel = app.models.Relationship;
+    var ctx = LoopBackContext.getCurrentContext();
+    var currentUser = ctx && ctx.get('currentUser');
+    if (!currentUser) {
+      cb(null, []);
+    }
+    RelationshipModel.find({
+      where: {
+        and: [
+          {
+            or: [{
+              firstUserId: currentUser.id,
+            },
+            {
+              secondUserId: currentUser.id,
+            }],
+          },
+          {
+            status: 'pending',
+          },
+          {
+            actionUserId: {
+              neq: currentUser.id,
+            },
+          },
+        ],
+      },
+      fields: {
+        firstUserId: true,
+        secondUserId: true,
+      },
+    }, function(err, data) {
+      if (err) cb(err);
+      AppUser.find({
+        where: {
+          id: {
+            inq: mapRelationshipDataIds(data, currentUser.id) || [],
+          },
+        },
+      }, cb);
+    });
+  };
+
   AppUser.listFriendsIds = function(id, cb) {
     var RelationshipModel = app.models.Relationship;
     RelationshipModel.find({
@@ -361,7 +405,7 @@ module.exports = function(AppUser) {
     var RelationshipModel = app.models.Relationship;
     var ctx = LoopBackContext.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
+    if (currentUser && currentUser.id !== id) {
       blockUser(RelationshipModel, currentUser.id, id, cb);
     } else {
       cb(null, false);
@@ -402,7 +446,8 @@ module.exports = function(AppUser) {
     if (currentUser) {
       getRelationshipBetween(RelationshipModel, currentUser.id, id,
         function(err, data) {
-          cb(err, data && data.status === 'accepted' ? true : false);
+          var isFriend = data && data.status === 'accepted' ? true : false;
+          cb(err, isFriend, data && data.status !== 'blocked' ? data : null);
         });
     } else {
       cb(null, false);
@@ -467,6 +512,20 @@ module.exports = function(AppUser) {
   );
 
   AppUser.remoteMethod(
+    'listFriendsRequests', {
+      returns: {
+        arg: 'users',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/friends-requests',
+        verb: 'get',
+      },
+    }
+  );
+
+  AppUser.remoteMethod(
     'listFriends', {
       accepts: [{
         arg: 'id',
@@ -506,11 +565,13 @@ module.exports = function(AppUser) {
         type: 'number',
         required: true,
       }],
-      returns: {
+      returns: [{
         arg: 'friends',
         type: 'boolean',
-        root: true,
-      },
+      }, {
+        arg: 'relationship',
+        type: 'object',
+      }],
       http: {
         path: '/:id/check-friendship',
         verb: 'get',

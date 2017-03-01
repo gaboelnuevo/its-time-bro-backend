@@ -38,7 +38,7 @@
       "model": "AppUser",
       "foreignKey": "userId"
     },
-    "voiceNotes": {
+    "voicenotes": {
       "type": "hasAndBelongsToMany",
       "model": "VoiceNote",
       "foreignKey": "alarmId",

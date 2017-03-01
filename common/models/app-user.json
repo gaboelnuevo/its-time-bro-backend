@@ -22,7 +22,10 @@
     "notifications": {
       "type": "hasAndBelongsToMany",
       "model": "UserNotification",
-      "foreignKey": "userId"
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
     }
   },
   "acls": [
@@ -82,6 +85,18 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__notifications"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__findById__notifications"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "addFriend"
@@ -109,6 +124,24 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "listFriends"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "checkFriendship"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "listBlockedUsers"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "listFriendsRequests"
     },
     {
       "principalType": "ROLE",
