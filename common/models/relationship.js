@@ -1,5 +1,7 @@
 'use strict';
 
+var LoopBackContext = require('loopback-context');
+
 module.exports = function(Relationship) {
   Relationship.validate(
     'relationship',
