@@ -233,17 +233,6 @@ module.exports = function(AppUser) {
     }
   };
 
-  AppUser.block = function(id, cb) {
-    var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      blockUser(RelationshipModel, currentUser.id, id, cb);
-    } else {
-      cb(null, false);
-    }
-  };
-
   AppUser.unfriend = function(id, cb) {
     var RelationshipModel = app.models.Relationship;
     var ctx = LoopBackContext.getCurrentContext();
@@ -268,6 +257,43 @@ module.exports = function(AppUser) {
     } else {
       cb(null, false);
     }
+  };
+
+  AppUser.listBlockedUsersIds = function(id, validateActionUser, cb) {
+    var RelationshipModel = app.models.Relationship;
+    if (!cb) {
+      cb = validateActionUser;
+      validateActionUser = false;
+    }
+    var filter = {
+      where: {
+        and: [
+          {
+            or: [{
+              firstUserId: id,
+            },
+              {
+                secondUserId: id,
+              }],
+          },
+          {
+            status: 'blocked',
+          },
+        ],
+      },
+      fields: {
+        firstUserId: true,
+        secondUserId: true,
+      },
+    };
+    RelationshipModel.find(
+      _.merge({},
+        filter,
+        validateActionUser ? {actionUserId: id} : {}
+      ), function(err, data) {
+      if (err) cb(err);
+      cb(null, mapRelationshipDataIds(data, id));
+    });
   };
 
   AppUser.listFriendsIds = function(id, cb) {
@@ -309,6 +335,37 @@ module.exports = function(AppUser) {
         },
       }, cb);
     });
+  };
+
+  AppUser.listBlockedUsers = function(cb) {
+    var ctx = LoopBackContext.getCurrentContext();
+    var currentUser = ctx && ctx.get('currentUser');
+    var userId = currentUser ? currentUser.id : null;
+    if (userId) {
+      AppUser.listBlockedUsersIds(userId, true, function(err, usersIds) {
+        if (err) cb(err);
+        AppUser.find({
+          where: {
+            id: {
+              inq: usersIds || [],
+            },
+          },
+        }, cb);
+      });
+    } else {
+      cb (null, []);
+    }
+  };
+
+  AppUser.block = function(id, cb) {
+    var RelationshipModel = app.models.Relationship;
+    var ctx = LoopBackContext.getCurrentContext();
+    var currentUser = ctx && ctx.get('currentUser');
+    if (currentUser) {
+      blockUser(RelationshipModel, currentUser.id, id, cb);
+    } else {
+      cb(null, false);
+    }
   };
 
   AppUser.unblock = function(id, cb) {
@@ -423,6 +480,20 @@ module.exports = function(AppUser) {
       },
       http: {
         path: '/:id/list-friends',
+        verb: 'get',
+      },
+    }
+  );
+
+  AppUser.remoteMethod(
+    'listBlockedUsers', {
+      returns: {
+        arg: 'users',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/blocked-users',
         verb: 'get',
       },
     }
