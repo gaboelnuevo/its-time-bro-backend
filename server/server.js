@@ -15,19 +15,11 @@ var transloaditKeys = {
   authSecret: process.env.TRANSLOADIT_AUTH_SECRET,
 };
 
-transloaditKeys = {
-  authKey: 'a43f5580ed6611e6b218693391151cc9',
-  authSecret: 'd980db552905e19cf9bcb3177a67dbf8c9ed2b45',
-};
-
-var templateId = process.env.TRANSLOADIT_VOICENOTES_TEMPLATE_ID;
-templateId = 'd3de6780f48311e684cb616f38f5e4bd';
-
 var TransloaditClient = require('transloadit');
 
 app.middleware('session:before', cookieParser(app.get('cookieSecret')));
 app.middleware('session', session({
-  secret: 'kitty',
+  secret: process.env.SESSION_SECRET || 'kitty',
   saveUninitialized: true,
   resave: true,
 }));
@@ -51,9 +43,6 @@ var facebookKeys = {
   clientID: process.env.FACEBOOCK_CLIENT_ID,
   clientSecret: process.env.FACEBOOCK_CLIENT_SECRET,
 };
-
-facebookKeys.clientID =  '1805815626347157';
-facebookKeys.clientSecret = '';
 
 var providersConfig = {};
 

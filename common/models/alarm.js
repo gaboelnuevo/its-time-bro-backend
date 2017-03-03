@@ -4,7 +4,6 @@ var app = require('../../server/server');
 var LoopBackContext = require('loopback-context');
 
 var VOICENOTE_TEMPLATE_ID = process.env.TRANSLOADIT_VOICENOTE_TEMPLATE_ID;
-VOICENOTE_TEMPLATE_ID = 'd3de6780f48311e684cb616f38f5e4bd';
 
 module.exports = function(Alarm) {
   Alarm.validate('waketime', wakeTimeValidator, {message: 'Invalid waketime'});
