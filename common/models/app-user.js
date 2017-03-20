@@ -183,7 +183,7 @@ module.exports = function(AppUser) {
   };
 
   AppUser.avatar = function(id, req, res, cb) {
-    var redirect =  !(req.query.json || false);
+    var redirect =  (req.query.json ?  req.query.json == 'true' : false);
     var avatarSize = req.query.size || req.query.s || 'small';
 
     if (avatarSize === 's') {
