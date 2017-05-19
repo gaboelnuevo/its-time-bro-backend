@@ -95,6 +95,13 @@ module.exports = function(Alarm) {
 
   Alarm.remoteMethod(
     'friendsAlarms', {
+      accepts: [
+        {
+          arg: 'options',
+          type: 'object',
+          http: 'optionsFromRequest',
+        },
+      ],
       returns: {
         arg: 'alarms',
         type: 'object',
