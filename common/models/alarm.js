@@ -1,7 +1,6 @@
 'use strict';
 
 var app = require('../../server/server');
-var LoopBackContext = require('loopback-context');
 
 var VOICENOTE_TEMPLATE_ID = process.env.TRANSLOADIT_VOICENOTE_TEMPLATE_ID;
 
@@ -36,21 +35,20 @@ module.exports = function(Alarm) {
   }
 
   Alarm.beforeRemote('create', function(ctx, modelInstance, next) {
-    var currentContext = LoopBackContext.getCurrentContext();
-    var currentUser = currentContext && currentContext.get('currentUser');
-    ctx.args.data.userId = currentUser ? currentUser.id : null;
+    var token = ctx.args.options && ctx.args.options.accessToken;
+    var currentUserId = token && token.userId;
+    ctx.args.data.userId = currentUserId;
     ctx.args.data.status = 'active';
     next();
   });
 
-  Alarm.friendsAlarms  = function(cb) {
+  Alarm.friendsAlarms  = function(options, cb) {
     var UserModel = app.models.AppUser;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    var userId = currentUser ? currentUser.id : null;
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
     var threeHoursAgo = new Date((new Date()).valueOf() - 1000 * 60 * 60 * 3);
-    if (userId) {
-      UserModel.listFriendsIds(userId, function(err, friendsIds) {
+    if (currentUserId) {
+      UserModel.listFriendsIds(currentUserId, function(err, friendsIds) {
         if (err) cb(err);
         Alarm.find({
           where: {
@@ -113,7 +111,7 @@ module.exports = function(Alarm) {
     'calcSignature', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
       }],
       returns: {

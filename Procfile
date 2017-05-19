@@ -1,1 +1,1 @@
-web: node -r cls-hooked .
+web: node .

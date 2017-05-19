@@ -5,8 +5,6 @@ var boot = require('loopback-boot');
 
 var app = module.exports = loopback();
 
-var LoopBackContext = require('loopback-context');
-
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
@@ -67,7 +65,6 @@ app.start = function() {
 };
 
 // -- Add your pre-processing middleware here --
-app.use(LoopBackContext.perRequest());
 app.use(loopback.token());
 app.use(function setCurrentUser(req, res, next) {
   if (!req.accessToken) {
@@ -80,10 +77,7 @@ app.use(function setCurrentUser(req, res, next) {
     if (!user) {
       return next(new Error('No user with this access token was found.'));
     }
-    var loopbackContext = LoopBackContext.getCurrentContext();
-    if (loopbackContext) {
-      loopbackContext.set('currentUser', user);
-    }
+    req.currentUser = user;
     next();
   });
 });

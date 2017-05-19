@@ -1,7 +1,5 @@
 'use strict';
 
-var LoopBackContext = require('loopback-context');
-
 module.exports = function(Relationship) {
   Relationship.validate(
     'relationship',
@@ -10,23 +8,23 @@ module.exports = function(Relationship) {
   );
 
   function relationshipValidator(err) {
-    if (this.firstUserId >= this.secondUserId) {
+    if (this.firstUserId.toString() >= this.secondUserId.toString()) {
       err();
     }
   }
 
   Relationship.observe('before save', function(ctx, next) {
-    var currentContext = LoopBackContext.getCurrentContext();
-    var currentUser = currentContext && currentContext.get('currentUser');
+    var token = ctx.options && ctx.options.accessToken;
+    var currentUserId = token && token.userId;
 
     if (ctx.instance) {
-      if (currentUser) {
-        ctx.instance.actionUserId = currentUser.id;
+      if (currentUserId) {
+        ctx.instance.actionUserId = currentUserId;
       }
       ctx.instance.updatedAt = new Date();
     } else {
-      if (currentUser) {
-        ctx.data.actionUserId = currentUser.id;
+      if (currentUserId) {
+        ctx.data.actionUserId = currentUserId;
       }
       ctx.data.updatedAt = new Date();
     }

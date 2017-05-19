@@ -1,6 +1,6 @@
 'use strict';
 var app = require('../../server/server');
-var LoopBackContext = require('loopback-context');
+var ObjectID = require('mongodb').ObjectID;
 
 // Add more reserver words from this list: http://blog.postbit.com/reserved-username-list.html
 
@@ -75,6 +75,20 @@ var avatarSizes = {
   large: 480,
 };
 
+var getMaxId = function(a, b) {
+  if (a.toString() >= b.toString()) {
+    return a;
+  }
+  return b;
+};
+
+var getMinId = function(a, b) {
+  if (a.toString() <= b.toString()) {
+    return a;
+  }
+  return b;
+};
+
 module.exports = function(AppUser) {
   AppUser.validatesExclusionOf('username', {in: ['itstimebro']});
   AppUser.validatesExclusionOf('username', {in: reservedWords});
@@ -87,8 +101,8 @@ module.exports = function(AppUser) {
   ) {
     RelationshipModel.findOne({
       where: {
-        firstUserId: Math.min(firstUserId, secondUserId),
-        secondUserId: Math.max(firstUserId, secondUserId),
+        firstUserId: getMinId(firstUserId, secondUserId),
+        secondUserId: getMaxId(firstUserId, secondUserId),
       },
     }, cb);
   };
@@ -102,8 +116,8 @@ module.exports = function(AppUser) {
         if (err) cb(err);
         if (!relationship) {
           var friendship = {
-            firstUserId: Math.min(currentUserId, friendId),
-            secondUserId: Math.max(currentUserId, friendId),
+            firstUserId: getMinId(currentUserId, friendId),
+            secondUserId: getMaxId(currentUserId, friendId),
             actionUserId: currentUserId,
             status: 'pending',
           };
@@ -113,7 +127,7 @@ module.exports = function(AppUser) {
         } else {
           var hasRequest = (
             relationship.status === 'pending' &&
-            relationship.actionUserId === friendId
+            relationship.actionUserId.toString() === friendId.toString()
           );
           if (hasRequest) {
             relationship.updateAttributes({
@@ -139,8 +153,8 @@ module.exports = function(AppUser) {
         if (err) cb(err);
         if (!relationship) {
           var blockUserData = {
-            firstUserId: Math.min(userId, currentUserId),
-            secondUserId: Math.max(userId, currentUserId),
+            firstUserId: getMinId(userId, currentUserId),
+            secondUserId: getMaxId(userId, currentUserId),
             actionUserId: currentUserId,
             status: 'blocked',
           };
@@ -170,7 +184,10 @@ module.exports = function(AppUser) {
 
   var mapRelationshipDataIds = function(data, excludedId) {
     return data.map(function(x) {
-      return (x.secondUserId === excludedId ? x.firstUserId : x.secondUserId);
+      return (
+        x.secondUserId.toString() === excludedId.toString() ?
+        x.firstUserId : x.secondUserId
+      );
     });
   };
 
@@ -222,23 +239,23 @@ module.exports = function(AppUser) {
     });
   };
 
-  AppUser.addFriend = function(id, cb) {
+  AppUser.addFriend = function(id, options, cb) {
     var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser && currentUser.id !== id) {
-      addFriend(RelationshipModel, currentUser.id, id, cb);
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (currentUserId && currentUserId.toString() !== id) {
+      addFriend(RelationshipModel, currentUserId, new ObjectID(id), cb);
     } else {
       cb(null, false);
     }
   };
 
-  AppUser.unfriend = function(id, cb) {
+  AppUser.unfriend = function(id, options, cb) {
     var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      getRelationshipBetween(RelationshipModel, currentUser.id, id,
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (currentUserId) {
+      getRelationshipBetween(RelationshipModel, currentUserId, id,
         function(err, relationship) {
           if (err) cb(err);
           var shouldContinue = (
@@ -296,11 +313,11 @@ module.exports = function(AppUser) {
     });
   };
 
-  AppUser.listFriendsRequests = function(cb) {
+  AppUser.listFriendsRequests = function(options, cb) {
     var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (!currentUser) {
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (!currentUserId) {
       cb(null, []);
     }
     RelationshipModel.find({
@@ -308,10 +325,10 @@ module.exports = function(AppUser) {
         and: [
           {
             or: [{
-              firstUserId: currentUser.id,
+              firstUserId: currentUserId,
             },
             {
-              secondUserId: currentUser.id,
+              secondUserId: currentUserId,
             }],
           },
           {
@@ -319,7 +336,7 @@ module.exports = function(AppUser) {
           },
           {
             actionUserId: {
-              neq: currentUser.id,
+              neq: currentUserId,
             },
           },
         ],
@@ -333,7 +350,7 @@ module.exports = function(AppUser) {
       AppUser.find({
         where: {
           id: {
-            inq: mapRelationshipDataIds(data, currentUser.id) || [],
+            inq: mapRelationshipDataIds(data, currentUserId) || [],
           },
         },
       }, cb);
@@ -381,12 +398,11 @@ module.exports = function(AppUser) {
     });
   };
 
-  AppUser.listBlockedUsers = function(cb) {
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    var userId = currentUser ? currentUser.id : null;
-    if (userId) {
-      AppUser.listBlockedUsersIds(userId, true, function(err, usersIds) {
+  AppUser.listBlockedUsers = function(options, cb) {
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (currentUserId) {
+      AppUser.listBlockedUsersIds(currentUserId, true, function(err, usersIds) {
         if (err) cb(err);
         AppUser.find({
           where: {
@@ -401,29 +417,29 @@ module.exports = function(AppUser) {
     }
   };
 
-  AppUser.block = function(id, cb) {
+  AppUser.block = function(id, options, cb) {
     var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser && currentUser.id !== id) {
-      blockUser(RelationshipModel, currentUser.id, id, cb);
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (currentUserId && currentUserId !== id) {
+      blockUser(RelationshipModel, currentUserId, id, cb);
     } else {
       cb(null, false);
     }
   };
 
-  AppUser.unblock = function(id, cb) {
+  AppUser.unblock = function(id, options, cb) {
     var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      getRelationshipBetween(RelationshipModel, currentUser.id, id,
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (currentUserId) {
+      getRelationshipBetween(RelationshipModel, currentUserId, id,
         function(err, relationship) {
           if (err) cb(err);
           var shouldContinue = (
             relationship &&
             relationship.status === 'blocked' &&
-            relationship.actionUserId === currentUser.id
+            relationship.actionUserId === currentUserId
           );
           if (shouldContinue) {
             RelationshipModel.destroyById(relationship.id, function(err) {
@@ -439,12 +455,12 @@ module.exports = function(AppUser) {
     }
   };
 
-  AppUser.checkFriendship = function(id, cb) {
+  AppUser.checkFriendship = function(id, options, cb) {
     var RelationshipModel = app.models.Relationship;
-    var ctx = LoopBackContext.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      getRelationshipBetween(RelationshipModel, currentUser.id, id,
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    if (currentUserId) {
+      getRelationshipBetween(RelationshipModel, currentUserId, id,
         function(err, data) {
           var isFriend = data && data.status === 'accepted' ? true : false;
           cb(err, isFriend, data && data.status !== 'blocked' ? data : null);
@@ -457,7 +473,7 @@ module.exports = function(AppUser) {
   AppUser.remoteMethod(
     'avatar', {
       accepts: [
-        {arg: 'id', type: 'number'},
+        {arg: 'id', type: 'string'},
         {arg: 'req', type: 'object', http: {source: 'req'}},
         {arg: 'res', type: 'object', http: {source: 'res'}},
       ],
@@ -477,8 +493,13 @@ module.exports = function(AppUser) {
     'addFriend', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
       }],
       returns: {
         arg: 'success',
@@ -496,8 +517,13 @@ module.exports = function(AppUser) {
     'unfriend', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
       }],
       returns: {
         arg: 'success',
@@ -513,6 +539,11 @@ module.exports = function(AppUser) {
 
   AppUser.remoteMethod(
     'listFriendsRequests', {
+      accepts: [{
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
       returns: {
         arg: 'users',
         type: 'object',
@@ -529,7 +560,7 @@ module.exports = function(AppUser) {
     'listFriends', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
       }],
       returns: {
@@ -546,6 +577,11 @@ module.exports = function(AppUser) {
 
   AppUser.remoteMethod(
     'listBlockedUsers', {
+      accepts: [{
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
       returns: {
         arg: 'users',
         type: 'object',
@@ -562,8 +598,13 @@ module.exports = function(AppUser) {
     'checkFriendship', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
       }],
       returns: [{
         arg: 'friends',
@@ -583,8 +624,13 @@ module.exports = function(AppUser) {
     'block', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
       }],
       returns: {
         arg: 'success',
@@ -602,8 +648,13 @@ module.exports = function(AppUser) {
     'unblock', {
       accepts: [{
         arg: 'id',
-        type: 'number',
+        type: 'string',
         required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
       }],
       returns: {
         arg: 'success',
