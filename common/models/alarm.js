@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('../../server/server');
+var request = require('request');
 
 var VOICENOTE_TEMPLATE_ID = process.env.TRANSLOADIT_VOICENOTE_TEMPLATE_ID;
 
@@ -77,16 +78,20 @@ module.exports = function(Alarm) {
     cb(null, app.transloadit.calcSignature(params));
   };
 
-  Alarm.sendVoiceNote = function(data, cb) {
+  Alarm.sendVoiceNote = function(data, options, cb) {
     // Warning!
     // Pending: check relationship status
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
     var VoiceNoteModel = app.models.VoiceNote;
-    app.transloadit.getAssembly(data.assemblyId, function(err, assembly) {
-      if (err) cb(err);
+    request(data.assemblyUrl, function(err, response, body) {
+      if (err) return cb(err, false);
+      var assembly = JSON.parse(body);
       VoiceNoteModel.create({
         alarmId: assembly.fields.alarmId,
         meta: assembly.results.waveform[0].meta,
         url: assembly.results.waveform[0].ssl_url,
+        senderId: currentUserId,
       }, function(err, result) {
         cb(err, result ? true : false);
       });
@@ -142,6 +147,11 @@ module.exports = function(Alarm) {
         http: {
           source: 'body',
         },
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
       }],
       returns: {
         arg: 'success',

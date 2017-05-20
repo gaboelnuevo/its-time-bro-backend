@@ -7,6 +7,11 @@
     "validateUpsert": true
   },
   "properties": {
+    "status": {
+      "type": "string",
+      "default": "sent",
+      "required": true
+    },
     "url": {
       "type": "string",
       "required": true
