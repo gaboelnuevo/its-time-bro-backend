@@ -43,6 +43,26 @@ module.exports = function(Alarm) {
     next();
   });
 
+  Alarm.observe('after save', function(ctx, next) {
+    var UserModel = app.models.AppUser;
+    if (ctx.isNewInstance) {
+      var userId = ctx.instance.userId;
+      UserModel.findById(userId, function(err, user) {
+        if (err) next(err);
+        if (user) {
+          user.currentAlarmId = ctx.instance.id;
+          user.save({}, function(err, data) {
+            next();
+          });
+        } else {
+          next();
+        }
+      });
+    } else {
+      next();
+    }
+  });
+
   Alarm.friendsAlarms  = function(options, cb) {
     var UserModel = app.models.AppUser;
     var token = options && options.accessToken;

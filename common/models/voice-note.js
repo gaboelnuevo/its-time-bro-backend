@@ -14,10 +14,10 @@ module.exports = function(VoiceNote) {
   VoiceNote.markAsListen = function(id, options, cb) {
     var token = options && options.accessToken;
     var currentUserId = token && token.userId;
-    VoiceNote.findOneById(id, function(err, voiceNote) {
+    VoiceNote.findById(id, function(err, voiceNote) {
       if (err) return cb(err);
       if (voiceNote) {
-        Alarm.findOneById(voiceNote.alarmId, function(err, alarm) {
+        Alarm.findById(voiceNote.alarmId, function(err, alarm) {
           if (err) return cb(err);
           if (alarm.userId.toString() === currentUserId.toString()) {
             voiceNote.status = 'listened';
