@@ -109,8 +109,8 @@ module.exports = function(Alarm) {
       var assembly = JSON.parse(body);
       VoiceNoteModel.create({
         alarmId: assembly.fields.alarmId,
-        meta: assembly.results.waveform[0].meta,
-        url: assembly.results.waveform[0].ssl_url,
+        meta: assembly.results.wav[0].meta,
+        url: assembly.results.wav[0].ssl_url,
         senderId: currentUserId,
       }, function(err, result) {
         cb(err, result ? true : false);
