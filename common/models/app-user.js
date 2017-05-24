@@ -253,6 +253,10 @@ module.exports = function(AppUser) {
             resError.status = 404;
             cb(resError);
           } else {
+            if (rel) {
+              user.friend = isFriend;
+              user.relationship = rel;
+            }
             user.alarms.count(function(err, count) {
               user.alarmsCount = !err ? count : null;
               AppUser.listFriendsIds(id, function(err, result) {
