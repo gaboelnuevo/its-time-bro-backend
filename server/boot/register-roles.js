@@ -30,7 +30,9 @@ module.exports = function(app) {
         {
           accessToken: ctx.accessToken,
         },
-        cb
+        function(err, isFriend, relationship) {
+          cb(err, isFriend);
+        }
       );
     });
   });

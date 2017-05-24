@@ -7,6 +7,7 @@
     "validateUpsert": true
   },
   "properties": {},
+  "protected": ["email"],
   "validations": [],
   "relations": {
     "alarms": {
@@ -94,6 +95,12 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "__findById__notifications"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "profile"
     },
     {
       "principalType": "ROLE",

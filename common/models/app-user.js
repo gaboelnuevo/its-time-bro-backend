@@ -199,6 +199,75 @@ module.exports = function(AppUser) {
     return result;
   };
 
+  AppUser.afterRemote('findById', function(ctx, user, next) {
+    var currentUserId = ctx.req.accessToken && ctx.req.accessToken.userId;
+    if (!currentUserId || currentUserId.toString() !== user.id.toString()) {
+      user.email = undefined;
+    }
+    next();
+  });
+
+  AppUser.afterRemote('profile', function(ctx, user, next) {
+    var currentUserId = ctx.req.accessToken && ctx.req.accessToken.userId;
+    if (!ctx.req.accessToken) {
+      next();
+    } else {
+      AppUser.listBlockedUsersIds(user.id, false, function(err, blockedIds) {
+        if (err) {
+          next(err);
+        } else {
+          if (blockedIds.indexOf(currentUserId) !== -1) {
+            var resError = new Error('User not found');
+            resError.code = 'MODEL_NOT_FOUND';
+            resError.status = 404;
+            next(resError);
+          } else {
+            next();
+          }
+        }
+      });
+    }
+  });
+
+  AppUser.profile = function(id, options, cb) {
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    var isMe = currentUserId.toString() === id;
+    AppUser.checkFriendship(id, options, function(err, isFriend, rel) {
+      if (err) {
+        cb(err);
+      } else {
+        AppUser.findOne(
+          {
+            where: {id: id},
+            include: (isFriend || isMe) ? 'currentAlarm' : null,
+            fields: {
+              email: isMe,
+              currentAlarmId: (isMe || isFriend),
+            },
+          }
+        ).then(function(user) {
+          if (!user) {
+            var resError = new Error('User not found');
+            resError.code = 'MODEL_NOT_FOUND';
+            resError.status = 404;
+            cb(resError);
+          } else {
+            user.alarms.count(function(err, count) {
+              user.alarmsCount = !err ? count : null;
+              AppUser.listFriendsIds(id, function(err, result) {
+                user.friendsCount = !err ? result.length : null;
+                cb(null, user);
+              });
+            });
+          }
+        }).catch(function(err) {
+          cb(err);
+        });
+      }
+    });
+  };
+
   AppUser.avatar = function(id, req, res, cb) {
     var redirect =  !(req.query.json ?  req.query.json == 'true' : false);
     var avatarSize = req.query.size || req.query.s || 'small';
@@ -394,6 +463,7 @@ module.exports = function(AppUser) {
             inq: friendsIds || [],
           },
         },
+        fields: {email: false},
       }, cb);
     });
   };
@@ -469,6 +539,30 @@ module.exports = function(AppUser) {
       cb(null, false);
     }
   };
+
+  AppUser.remoteMethod(
+    'profile', {
+      accepts: [{
+        arg: 'id',
+        type: 'string',
+        required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
+      returns: {
+        arg: 'profile',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/:id/profile',
+        verb: 'get',
+      },
+    }
+  );
 
   AppUser.remoteMethod(
     'avatar', {
