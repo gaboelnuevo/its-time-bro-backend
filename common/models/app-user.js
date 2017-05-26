@@ -242,6 +242,11 @@ module.exports = function(AppUser) {
               {email: query.toLowerCase()},
           ],
         },
+        fields: {
+          id: true,
+          username: true,
+          name: true,
+        },
       }).then(function(results) {
         cb(null, results);
       }).catch(function(err) {
