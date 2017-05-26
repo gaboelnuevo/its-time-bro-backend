@@ -232,8 +232,12 @@ module.exports = function(AppUser) {
   AppUser.profile = function(id, options, cb) {
     var token = options && options.accessToken;
     var currentUserId = token && token.userId;
-    var isMe = currentUserId.toString() === id;
+    var isMe = currentUserId.toString() === id.toString();
     AppUser.checkFriendship(id, options, function(err, isFriend, rel) {
+      var fields = {
+        email: isMe ? undefined : false,
+        currentAlarmId: (isMe || isFriend) ? undefined : false,
+      };
       if (err) {
         cb(err);
       } else {
@@ -241,10 +245,7 @@ module.exports = function(AppUser) {
           {
             where: {id: id},
             include: (isFriend || isMe) ? 'currentAlarm' : null,
-            fields: {
-              email: isMe ? undefined : false,
-              currentAlarmId: (isMe || isFriend) ? undefined : false,
-            },
+            fields: JSON.parse(JSON.stringify(fields)),
           }
         ).then(function(user) {
           if (!user) {
