@@ -229,6 +229,26 @@ module.exports = function(AppUser) {
     }
   });
 
+  AppUser.search = function(query, options, cb) {
+    /* case-insensitive RegExp search */
+    var pattern = new RegExp('.*' + query + '.*', 'i');
+    AppUser.find(
+      {
+        limit: 10,
+        where: {
+          or: [
+              {username: {like: pattern}},
+              {name: {like: pattern}},
+              {email: query.toLowerCase()},
+          ],
+        },
+      }).then(function(results) {
+        cb(null, results);
+      }).catch(function(err) {
+        cb(err);
+      });
+  };
+
   AppUser.profile = function(id, options, cb) {
     var token = options && options.accessToken;
     var currentUserId = token && token.userId;
@@ -632,6 +652,29 @@ module.exports = function(AppUser) {
       http: {
         path: '/:id/unfriend',
         verb: 'post',
+      },
+    }
+  );
+
+  AppUser.remoteMethod(
+    'search', {
+      accepts: [{
+        arg: 'query',
+        type: 'string',
+        required: true,
+      }, {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
+      returns: {
+        arg: 'users',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/search',
+        verb: 'get',
       },
     }
   );
