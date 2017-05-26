@@ -242,8 +242,8 @@ module.exports = function(AppUser) {
             where: {id: id},
             include: (isFriend || isMe) ? 'currentAlarm' : null,
             fields: {
-              email: isMe,
-              currentAlarmId: (isMe || isFriend),
+              email: isMe ? undefined : false,
+              currentAlarmId: (isMe || isFriend) ? undefined : false,
             },
           }
         ).then(function(user) {
