@@ -4,7 +4,13 @@
   "base": "Installation",
   "properties": {},
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "AppUser",
+      "foreignKey": "userId"
+    }
+  },
   "acls": [],
   "methods": {}
 }
