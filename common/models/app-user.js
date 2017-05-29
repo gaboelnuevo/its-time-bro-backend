@@ -570,6 +570,40 @@ module.exports = function(AppUser) {
     }
   };
 
+  AppUser.registerDevice = function(data, options, cb) {
+    var Installation = app.models.UserInstallation;
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    Installation.findOne({
+      where: {
+        deviceToken: data.deviceToken,
+        deviceType: data.deviceType,
+      },
+    }).then(function(installation) {
+      if (installation) {
+        installation.userId = currentUserId;
+        installation.modified = new Date();
+        Installation.status = 'Active';
+        return innstallation.save();
+      } else {
+        return Installation.create({
+          appId: 'itstimebro-push-app',
+          userId: currentUserId,
+          deviceToken: data.deviceToken,
+          deviceType: data.deviceType,
+          created: new Date(),
+          modified: new Date(),
+          status: 'Active',
+        });
+      }
+    }).then(function(installation) {
+      cb(null, installation);
+    })
+    .catch(function(err) {
+      cb(err);
+    });
+  };
+
   AppUser.remoteMethod(
     'profile', {
       accepts: [{
@@ -810,6 +844,33 @@ module.exports = function(AppUser) {
       },
       http: {
         path: '/:id/unblock',
+        verb: 'post',
+      },
+    }
+  );
+
+  AppUser.remoteMethod(
+    'registerDevice', {
+      accepts: [{
+        arg: 'data',
+        type: 'object',
+        required: true,
+        http: {
+          source: 'body',
+        },
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
+      returns: {
+        arg: 'installation',
+        type: 'object',
+        root: true,
+      },
+      http: {
+        path: '/register-device',
         verb: 'post',
       },
     }
