@@ -18,11 +18,19 @@
       "type": "date",
       "required": true
     },
+    "realWaketime": {
+      "type": "date",
+      "required": false
+    },
     "createdAt": {
       "type": "date",
       "default": "$now"
     },
     "updatedAt": {
+      "type": "date",
+      "default": "$now"
+    },
+    "createdAt": {
       "type": "date",
       "default": "$now"
     },

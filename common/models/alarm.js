@@ -3,6 +3,8 @@
 var app = require('../../server/server');
 var request = require('request');
 
+var _ = require('lodash');
+
 var VOICENOTE_TEMPLATE_ID = process.env.TRANSLOADIT_VOICENOTE_TEMPLATE_ID;
 
 module.exports = function(Alarm) {
@@ -11,7 +13,7 @@ module.exports = function(Alarm) {
 
   function wakeTimeValidator(err) {
     var rangeHours = 24;
-    var now = new Date();
+    var now = this.updatedAt || this.createdAt || new Date();
     var timeDiff = this.waketime.getTime() - now.getTime();
     if (now.getTime() > this.waketime.getTime()) {
       err();
@@ -27,13 +29,20 @@ module.exports = function(Alarm) {
   function bedTimeValidator(err) {
     var rangeMinutes = 5;
     if (this.bedtime) {
-      var now = new Date();
+      var now = this.createdAt || this.updatedAt || new Date();
       var timeDiff = this.bedtime.getTime() - now.getTime();
       if (timeDiff < 0 && Math.abs(timeDiff / (1000 * 60)) > rangeMinutes) {
         err();
       }
     }
   }
+
+  Alarm.beforeRemote('*.patchAttributes', function(ctx, alarm, next) {
+    var whiteListProps =  ['waketime', 'bedtime', 'textMessage'];
+    ctx.args.data = _.pick(ctx.args.data, whiteListProps);
+    ctx.args.data.updatedAt = new Date();
+    next();
+  });
 
   Alarm.beforeRemote('create', function(ctx, modelInstance, next) {
     var token = ctx.args.options && ctx.args.options.accessToken;
@@ -62,6 +71,27 @@ module.exports = function(Alarm) {
       next();
     }
   });
+
+  Alarm.turnOff = function(id, options, cb) {
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    Alarm.findById(id, function(err, alarm) {
+      if (err) return cb(err);
+      var shouldContinue = (
+        alarm.userId.toString() === currentUserId.toString() &&
+        alarm.status === 'active'
+      );
+      if (shouldContinue) {
+        alarm.realWaketime = new Date();
+        alarm.status = 'disabled';
+        alarm.save({}, function(err, data) {
+          cb(err, data ? true : false);
+        });
+      } else {
+        cb(null, false);
+      }
+    });
+  };
 
   Alarm.friendsAlarms  = function(options, cb) {
     var UserModel = app.models.AppUser;
@@ -117,6 +147,30 @@ module.exports = function(Alarm) {
       });
     });
   };
+
+  Alarm.remoteMethod(
+    'turnOff', {
+      accepts: [{
+        arg: 'id',
+        type: 'string',
+        required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
+      returns: {
+        arg: 'success',
+        type: 'boolean',
+        root: true,
+      },
+      http: {
+        path: '/:id/turn-off',
+        verb: 'post',
+      },
+    }
+  );
 
   Alarm.remoteMethod(
     'friendsAlarms', {
