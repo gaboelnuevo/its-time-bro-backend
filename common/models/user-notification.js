@@ -14,7 +14,7 @@ var _objectWithoutProperties = function(obj, keys) {
   return target;
 };
 
-var _calculateCurrentBadge = function(UserNotification, cb) {
+var _calculateCurrentBadge = function(UserNotification, userId, cb) {
   UserNotification.count(
     {
       userId: userId,
@@ -27,9 +27,7 @@ var _calculateCurrentBadge = function(UserNotification, cb) {
 var _notifyByUserId = function(PushModel, userId, data, cb) {
   PushModel.notifyByQuery(
     {
-      where: {
-        userId: userId,
-      },
+      userId: userId,
     },
     data,
     function(err) {
@@ -81,13 +79,13 @@ module.exports = function(UserNotification) {
           notificationData
         ));
 
-      _calculateCurrentBadge(UserNotification, function(err, badge) {
+      _calculateCurrentBadge(UserNotification, userId, function(err, badge) {
         if (err) {
           console.error('Can\'t calculate badge: %s', err.stack);
         } else {
           notification.badge = badge;
         }
-        _notifyByUserId(PushModel, userId, notification, next);
+        _notifyByUserId(PushModel, userId.toString(), notification, next);
       });
     } else {
       next();

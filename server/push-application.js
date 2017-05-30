@@ -7,7 +7,7 @@ module.exports = function(app) {
 
   function startPushServer() {
     PushModel.on('error', function(err) {
-      console.error('Push Notification error: ', err.stack);
+      console.error('Push Notification error: ', err);
     });
 
     // Pre-register an application that is ready to be used for testing.
