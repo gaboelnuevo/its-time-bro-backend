@@ -51,6 +51,7 @@ module.exports = function(UserNotification) {
       'id',
       'userId',
       'payload',
+      'seen',
     ];
 
     var userId = ctx.instance.userId;
