@@ -148,6 +148,30 @@ module.exports = function(Alarm) {
     });
   };
 
+  Alarm.markVoiceNoteAsListened = function(id, fk, options, cb) {
+    var VoiceNote = app.models.VoiceNote;
+    var token = options && options.accessToken;
+    var currentUserId = token && token.userId;
+    VoiceNote.findOne({alarmId: id, id: fk}, function(err, voiceNote) {
+      if (err) return cb(err);
+      if (voiceNote) {
+        Alarm.findById(id, function(err, alarm) {
+          if (err) return cb(err);
+          if (alarm && alarm.userId.toString() === currentUserId.toString()) {
+            voiceNote.status = 'listened';
+            voiceNote.save({}, function(err, data) {
+              cb(err, data ? true : false);
+            });
+          } else {
+            cb(null, false);
+          }
+        });
+      } else {
+        cb(null, false);
+      }
+    });
+  };
+
   Alarm.remoteMethod(
     'turnOff', {
       accepts: [{
@@ -234,6 +258,35 @@ module.exports = function(Alarm) {
       },
       http: {
         path: '/send-voice-note',
+        verb: 'post',
+      },
+    }
+  );
+
+  Alarm.remoteMethod(
+    'markVoiceNoteAsListened', {
+      accepts: [{
+        arg: 'id',
+        type: 'string',
+        required: true,
+      },
+      {
+        arg: 'fk',
+        type: 'string',
+        required: true,
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest',
+      }],
+      returns: {
+        arg: 'success',
+        type: 'boolean',
+        root: true,
+      },
+      http: {
+        path: '/:id/voicesnotes/:fk/mark-as-listened',
         verb: 'post',
       },
     }
