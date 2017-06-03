@@ -38,9 +38,11 @@ module.exports = function(Alarm) {
   }
 
   Alarm.beforeRemote('*.patchAttributes', function(ctx, alarm, next) {
-    var whiteListProps =  ['waketime', 'bedtime', 'textMessage'];
-    ctx.args.data = _.pick(ctx.args.data, whiteListProps);
-    ctx.args.data.updatedAt = new Date();
+    if (!ctx.args.options.skipWhiteList) {
+      var whiteListProps =  ['waketime', 'bedtime', 'textMessage'];
+      ctx.args.data = _.pick(ctx.args.data, whiteListProps);
+      ctx.args.data.updatedAt = new Date();
+    }
     next();
   });
 
@@ -84,7 +86,7 @@ module.exports = function(Alarm) {
       if (shouldContinue) {
         alarm.realWaketime = new Date();
         alarm.status = 'disabled';
-        alarm.save({}, function(err, data) {
+        alarm.save({skipWhiteList: true}, function(err, data) {
           cb(err, data ? true : false);
         });
       } else {
@@ -152,15 +154,18 @@ module.exports = function(Alarm) {
     var VoiceNote = app.models.VoiceNote;
     var token = options && options.accessToken;
     var currentUserId = token && token.userId;
-    VoiceNote.findOne({alarmId: id, id: fk}, function(err, voiceNote) {
+    VoiceNote.findOne({where: {alarmId: id, id: fk}}, function(err, voiceNote) {
       if (err) return cb(err);
       if (voiceNote) {
         Alarm.findById(id, function(err, alarm) {
           if (err) return cb(err);
           if (alarm && alarm.userId.toString() === currentUserId.toString()) {
             voiceNote.status = 'listened';
-            voiceNote.save({}, function(err, data) {
-              cb(err, data ? true : false);
+            voiceNote.save({}).then(function(data) {
+              console.log(data);
+              cb(null, true);
+            }).catch(function(err) {
+              cb(err, false);
             });
           } else {
             cb(null, false);

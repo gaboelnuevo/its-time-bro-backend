@@ -1,7 +1,6 @@
 'use strict';
 
 var app = require('../../server/server');
-var Alarm = app.models.Alarm;
 
 module.exports = function(VoiceNote) {
   VoiceNote.beforeRemote('create', function(ctx, modelInstance, next) {
