@@ -291,7 +291,7 @@ module.exports = function(Alarm) {
         root: true,
       },
       http: {
-        path: '/:id/voicesnotes/:fk/mark-as-listened',
+        path: '/:id/voicenotes/:fk/mark-as-listened',
         verb: 'post',
       },
     }
