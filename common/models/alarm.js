@@ -56,22 +56,19 @@ module.exports = function(Alarm) {
 
   Alarm.observe('after save', function(ctx, next) {
     var UserModel = app.models.AppUser;
-    if (ctx.isNewInstance) {
-      var userId = ctx.instance.userId;
-      UserModel.findById(userId, function(err, user) {
-        if (err) next(err);
-        if (user) {
-          user.currentAlarmId = ctx.instance.id;
-          user.save({}, function(err, data) {
-            next();
-          });
-        } else {
+    var alarm = ctx.instance;
+    var currentAlarmId = alarm.status === 'active' ? alarm.id : null;
+    UserModel.findById(alarm.userId, function(err, user) {
+      if (err) next(err);
+      if (user) {
+        user.currentAlarmId = currentAlarmId;
+        user.save({}, function(err, data) {
           next();
-        }
-      });
-    } else {
-      next();
-    }
+        });
+      } else {
+        next();
+      }
+    });
   });
 
   Alarm.turnOff = function(id, options, cb) {
